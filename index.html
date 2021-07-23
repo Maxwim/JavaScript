@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas{
+            border: 5px solid black;
+        }
+       
+        
+    </style>
+</head>
+<head>
+</head>
+<body>
+    <input type="text" name="largeur" id="largeur" placeholder="Largeur : cm">
+    <input type="text" name="Hauteur" id="Hauteur" placeholder="Hauteur : cm">
+    <input type="submit" value="Dessiner" onclick="draw.AddDraw()">
+    <input type="submit" value="Supprimer tout" id="buttonSubmit" hidden=true onclick="draw.removeAll()">
+
+    input:
+    <p id="prix">0 €</p>
+    <p id="nbItem">0</p>
+    <canvas width="400" height="400"></canvas>
+    <footer></footer>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext("2d");
+        var id = 0;
+        var draw = {
+            name: ["nomRessource"],
+            prixcm2: 0.000298, // Admettons un prix en € en cm pour faire une convertion en m2 ensuite (l(cm) x h(cm) = m2)
+            prixCommande: 0,
+            Hauteur: 100, // Dafault
+            largeur: 220, // Default
+            limitLargeur: 53, // 80m
+            limitHauteur: 1000, // 10m
+            activeLimite: true, 
+            cacheHauteur: [], 
+            cacheLargeur: [],
+            canvasInfo: [ {
+                // ID: [],
+                UID: [],
+                PositionX : [],
+                PositionY : [],
+                Hauteur: [],
+                Largeur: [],
+                Color: [],
+            }],
+            /**
+             * Ajouté une largeur
+             **/
+            AddLargeur: function(){
+                this.largeur = document.getElementById('largeur').value;
+                this.cacheHauteur.push(this.largeur);
+            },
+            /**
+             * Ajouté une hauteur
+             **/
+            AddHauteur: function(){
+                
+                this.Hauteur = document.getElementById('Hauteur').value;
+                this.cacheLargeur.push(this.Hauteur);
+            },
+            /**
+             * Dessiner + Historique des dessins + save le déssins
+             **/
+            AddDraw: function(color="#BADA55"){ 
+                this.AddHauteur();
+                this.AddLargeur();
+                positionX = 10;
+                positionY = 10;
+                ctx.fillStyle = color; 
+                ctx.fillRect(positionX, positionY, this.largeur, this.Hauteur); // Position à changer, mais je sais pas encore comment bien la modifier
+                // this.canvasInfo.push;
+                document.getElementById("buttonSubmit").hidden = false;
+                // id = 0;
+                id = 1;
+                // this.canvasInfo[0].ID.push(id); // Push 
+                this.canvasInfo[0].UID.push(id); // Push 
+                this.canvasInfo[0].PositionX.push(positionX); // Push 
+                this.canvasInfo[0].PositionY.push(positionY); // Push 
+                this.canvasInfo[0].Hauteur.push(this.Hauteur); // Push 
+                this.canvasInfo[0].Largeur.push(this.largeur); // Push 
+                this.canvasInfo[0].Color.push(color); // Push 
+
+                this.calcm2();
+                this.calcItem();
+            },
+            /**
+             * Affiche les bloc créer et"vivant"
+            **/
+            listerBloc: function(){
+                // Permet de récupérer et lister les éléments dans canvas info
+            },
+            /**
+             *  Calcul le prix par apport au centimère carré pour le convertire en M2
+            **/
+            calcItem: function(){
+                if (this.activeLimite == true) {
+                    // item = this.largeur
+                    m2Select = (this.largeur * this.Hauteur) / 1000;
+                    m2Limit = (this.limitLargeur * this.limitHauteur) / 1000;
+                    item = m2Select / m2Limit;
+                    console.log(item);
+                    console.log("select : " +  m2Select);
+                    console.log("Limite : " + m2Limit);
+
+                    document.getElementById('nbItem').innerHTML = "nombre item :" + Math.ceil(item);
+
+                }
+            },
+            /**
+             * Calcul CM2
+             **/ 
+            calcm2: function(){
+                price = (this.largeur * this.Hauteur) * this.prixcm2;
+                this.prixCommande = price;
+                document.getElementById('prix').innerHTML = price + " €";
+                // console.log(price);
+            },
+            /**
+             * Supprimer un threads  
+             **/ 
+            remove: function(){
+                // console.log(this.cacheHauteur[0]);
+                ctx.clearRect(10, 10, this.cacheHauteur[0], this.cacheLargeur[0]);
+                document.getElementById("buttonSubmit").hidden = true;
+
+            },
+            /**
+             * Supprimer tout les threads 
+             **/
+            removeAll: function(){
+                for (let i = 0; i < this.cacheLargeur.length; i++) {
+                    ctx.clearRect(10, 10, this.cacheHauteur[i], this.cacheLargeur[i]);
+                }
+            }
+           
+        }
+     
+    </script>
+</body>
+</html>
